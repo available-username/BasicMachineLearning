@@ -1,4 +1,4 @@
-package com.afconsult.math;
+package se.phi.math;
 
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -6,8 +6,8 @@ import java.util.function.Function;
 
 public class Matrix {
 
-    private final int rows;
-    private final int cols;
+    public final int rows;
+    public final int cols;
 
     private double[][] m;
 
@@ -51,6 +51,8 @@ public class Matrix {
         return new Matrix(rows, cols);
     }
 
+    public static Matrix Ones(int rows, int cols) { return new Matrix(rows, cols, (r, c) -> 1.0); }
+
     public double get(int row, int col) {
         return m[row][col];
     }
@@ -77,7 +79,8 @@ public class Matrix {
 
     public Matrix add(Matrix o) {
         if (rows != o.rows || cols != o.cols) {
-            throw new IllegalArgumentException("Matrix dimensions do not agree");
+            throw new IllegalArgumentException("Matrix dimensions do not agree "
+                    + String.format("%dx%d + %dx%d", rows, cols, o.rows, o.cols));
         }
 
         Matrix v = new Matrix(rows, cols);
@@ -93,7 +96,8 @@ public class Matrix {
 
     public Matrix subtract(Matrix o) {
         if (rows != o.rows || cols != o.cols) {
-            throw new IllegalArgumentException("Matrix dimensions do not agree");
+            throw new IllegalArgumentException("Matrix dimensions do not agree "
+                    + String.format("%dx%d - %dx%d", rows, cols, o.rows, o.cols));
         }
 
         Matrix v = new Matrix(rows, cols);
@@ -109,22 +113,32 @@ public class Matrix {
 
     public Matrix multiply(Matrix o) {
         if (cols != o.rows) {
-            throw new IllegalArgumentException("Matrix dimensions do not agree");
+            throw new IllegalArgumentException("Matrix dimensions do not agree "
+                    + String.format("%dx%d - %dx%d", rows, cols, o.rows, o.cols));
         }
 
-        Matrix v = new Matrix(rows, o.cols);
+        return new Matrix(rows, o.cols, (r, c) -> dotProd(this.row(r), o.column(c)));
+    }
 
-        for (int r = 0; r < rows; r++) {
-            Matrix row = this.row(r);
+    public Matrix addElementWise(Matrix o) {
+        return this.elementWise(o, (x, y) -> x + y);
+    }
 
-            for (int c = 0; c < o.cols; c++) {
-                Matrix col = o.column(c);
+    public Matrix subtractElementWise(Matrix o) {
+        return this.elementWise(o, (x, y) -> x - y);
+    }
 
-                v.m[r][c] = dotProd(row, col);
-            }
+    public Matrix multiplyElementWise(Matrix o) {
+        return this.elementWise(o, (x, y) -> x * y);
+    }
+
+    public Matrix elementWise(Matrix o, BiFunction<Double, Double, Double> function) {
+        if (cols != o.cols || rows != o.rows) {
+            throw new IllegalArgumentException("Matrix dimensions do not agree "
+                    + String.format("%dx%d - %dx%d", rows, cols, o.rows, o.cols));
         }
 
-        return v;
+        return new Matrix(rows, cols, (r, c) -> function.apply(this.m[r][c], o.m[r][c]));
     }
 
     public Matrix transpose() {
@@ -200,7 +214,7 @@ public class Matrix {
             builder.append(r == 0 ? "[" : " ");
 
             for (int c = 0; c < cols; c++) {
-                builder.append(c > 0 ? String.format(", %-2.2f", m[r][c]) : String.format("%-2.2f", m[r][c]));
+                builder.append(c > 0 ? String.format(", %-2.4f", m[r][c]) : String.format("%-2.4f", m[r][c]));
             }
 
             builder.append(r == rows - 1 ? "]" : "\n");

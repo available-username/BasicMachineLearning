@@ -1,4 +1,4 @@
-package com.afconsult.math;
+package se.phi.math;
 
 import junit.framework.TestCase;
 
