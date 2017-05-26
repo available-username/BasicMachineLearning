@@ -1,4 +1,4 @@
-package se.phi.ann.xor;
+package se.phi.ann.examples.xor;
 
 import se.phi.math.Matrix;
 import se.phi.ann.TrainingDataItem;

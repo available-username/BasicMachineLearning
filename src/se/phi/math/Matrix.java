@@ -25,6 +25,18 @@ public class Matrix {
         }
     }
 
+    public Matrix(double[][] m) {
+        this.rows = m.length;
+        this.cols = m[0].length;
+
+        this.m = new double[rows][];
+
+        for (int r = 0; r < rows; r++) {
+            this.m[r] = new double[cols];
+            System.arraycopy(m[r], 0, this.m[r], 0, cols);
+        }
+    }
+
     public Matrix(int rows, int cols, BiFunction<Integer, Integer, Double> initFunction) {
         if (rows < 1 || cols < 1) {
             throw new IllegalArgumentException("Illegal matrix dimensions");
@@ -117,7 +129,20 @@ public class Matrix {
                     + String.format("%dx%d - %dx%d", rows, cols, o.rows, o.cols));
         }
 
-        return new Matrix(rows, o.cols, (r, c) -> dotProd(this.row(r), o.column(c)));
+        double[][] data = new double[rows][];
+        for (int r = 0; r < rows; r++) {
+            data[r] = new double[o.cols];
+        }
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < o.cols; c++) {
+                for (int i = 0; i < cols; i++) {
+                    data[r][c] += m[r][i] * o.m[i][c];
+                }
+            }
+        }
+
+        return new Matrix(data);
     }
 
     public Matrix addElementWise(Matrix o) {
@@ -145,7 +170,7 @@ public class Matrix {
         return new Matrix(cols, rows, (r, c) -> this.m[c][r]);
     }
 
-    private Matrix row(int r) {
+     Matrix row(int r) {
         if (r < 0 || r > rows - 1) {
             throw new IllegalArgumentException("Row exceeds matrix dimensions");
         }
@@ -181,6 +206,16 @@ public class Matrix {
         }
 
         return prod;
+    }
+
+    public static Matrix diagonalize(Matrix m) {
+        if (m.rows != 1 && m.cols != 1) {
+            throw new IllegalArgumentException("Matrix must be one dimensional");
+        }
+
+        return m.rows > m.cols ?
+                new Matrix(m.rows, m.rows, (r, c) -> r == c ? m.m[r][0] : 0.0) :
+                new Matrix(m.cols, m.cols, (r, c) -> r == c ? m.m[0][c] : 0.0);
     }
 
     @Override
@@ -222,4 +257,5 @@ public class Matrix {
 
         return builder.toString();
     }
+
 }

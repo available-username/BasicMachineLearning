@@ -95,6 +95,19 @@ public class MatrixTest extends TestCase {
         assertEquals(squareIdentity, identitySquare);
     }
 
+    public void testMultiply2() {
+        Matrix a = new Matrix(new double[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+        Matrix b = new Matrix(new double[][] {{2, 3, 4}, {5, 6, 7}, {8, 9, 10}});
+
+        Matrix expectMultiplyAandB = new Matrix(new double[][] {{36, 42, 48}, {81, 96, 111}, {126, 150, 174}});
+        Matrix multiplyAandB = a.multiply(b);
+        assertEquals(expectMultiplyAandB, multiplyAandB);
+
+        Matrix expectMultiplyBandA = new Matrix(new double[][] {{42, 51, 60}, {78, 96, 114}, {114, 141, 168}});
+        Matrix multiplyBandA = b.multiply(a);
+        assertEquals(expectMultiplyBandA, multiplyBandA);
+    }
+
     public void testTranspose() {
         int rows = 3;
         int cols = 7;

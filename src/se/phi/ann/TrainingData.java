@@ -6,9 +6,5 @@ public interface TrainingData {
 
     int getNbrOutputs();
 
-    TrainingDataItem nextItem();
-
-    boolean hasMore();
-
-    void reset();
+    TrainingDataItem[] getTrainingData();
 }
