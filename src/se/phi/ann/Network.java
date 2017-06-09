@@ -21,6 +21,16 @@ public class Network {
     private Layer outputLayer;
     private boolean useBias;
 
+    /**
+     * Create a new neural network.
+     *
+     * @param nbrInputs number of inputs to the network
+     * @param topology a representation of the hidden layers. The number of items in the list represents the number of
+     *                 hidden layers and each item represents the thickness of the corresponding layer.
+     * @param nbrOutputs number of outputs from the network
+     * @param useBias {@code true} if the layers should include a bias term
+     * @param activationFunction a sigmoid activation function
+     */
     public Network(int nbrInputs, List<Integer> topology, int nbrOutputs, boolean useBias, Function<Double, Double> activationFunction) {
         inputLayer = new Layer(nbrInputs, useBias, activationFunction);
         outputLayer = new Layer(nbrOutputs, useBias, activationFunction);
@@ -57,17 +67,34 @@ public class Network {
         predecessor.setSuccessor(outputLayer);
     }
 
+    /**
+     * Get a prediction from the network based on arbitrary input
+     * @param input input data
+     * @return the predicted output.
+     */
     public Matrix predict(Matrix input) {
         inputLayer.feedForward(input);
         return outputLayer.getOutput();
     }
 
+    /**
+     * Train the network.
+     * @param trainingData data to train the network on
+     * @param learningRate how fast the network should attempt to learn, suitable values are in the range (0, 1]
+     * @param nbrEpochs how many times the training data should be passed through the network
+     * @param nbrBatches how many batches the training data should be segmented into. Training data is
+     *                   shuffled and segmented before being passed through the network.
+     * @return the quadratic mean error resulting from training the network.
+     */
     public double train(TrainingData trainingData, double learningRate, int nbrEpochs, int nbrBatches) {
-        double quadError = 0;
-        long iteration = 1;
+        double quadError = Double.MAX_VALUE;
+        long iteration;
 
         for (int epoch = 0; epoch < nbrEpochs; epoch++) {
             Collection<TrainingDataItem[]> miniBatches = getMiniBatches(trainingData.getTrainingData(), nbrBatches);
+
+            quadError = 0;
+            iteration = 1;
 
             for (TrainingDataItem[] batch : miniBatches) {
                 for (TrainingDataItem item : batch) {
@@ -129,6 +156,10 @@ public class Network {
         return topology;
     }
 
+    /**
+     * Save the network.
+     * @param outputStream where to save to.
+     */
     public void save(OutputStream outputStream) {
         try (PrintStream printStream = new PrintStream(outputStream)) {
 
@@ -166,6 +197,11 @@ public class Network {
         }
     }
 
+    /**
+     * Load a network.
+     * @param inputStream where to load from.
+     * @return an instance of the network.
+     */
     public static Network load(InputStream inputStream) {
         try (Scanner scanner = new Scanner(inputStream)) {
             scanner.useLocale(Locale.ENGLISH);
